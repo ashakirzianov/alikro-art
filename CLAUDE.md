@@ -40,7 +40,7 @@ A per-effort implementation plan is still welcome as a local `.md` when an effor
 ### Task Management
 - Work is usually driven through direct prompts.
 - Persistent task `.md` files aren't required, but they're welcome when an effort is large enough that tracking it across sessions helps. When one exists, treat its tasks as pre-approved unless stated otherwise.
-- **Whether that pre-approval extends to Linear issues is undecided** (ASH-168). Until it is, present an approach first for work driven from Linear.
+- **Pre-approval carries to Linear issues labeled `startable`** (only Anton applies that label) — decided 2026-09-01 (ASH-168). Issues without the label: present an approach first.
 
 ### Planning & Scope
 - For small, well-scoped changes, just do it — no upfront planning needed unless requested.
