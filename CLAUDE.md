@@ -12,35 +12,15 @@ The project is small, so the workflow here is lighter than in the more structure
 
 ### Documentation Organization
 - `CLAUDE.md` — conventions and guidance for Claude Code (this file).
-- **Tasks, issues and ideas live in Linear, not in this repo** — see *Task tracking* below. `IDEAS.md` still exists as the migration's rollback and is **retired, not authoritative**; do not capture to it.
+- **Tasks, issues and ideas live in the tracker, not in this repo.** How to use it — the tools, the vocabularies, and what belongs in a repo instead — is fleet-wide guidance every agent already carries; this repo adds nothing to it. `IDEAS.md` still exists as the migration's rollback and is **retired, not authoritative**; do not capture to it.
+- `TRACK.md` — which track this repo belongs to, and its slug. The slug is the tracker's project name and is declared there and nowhere else.
 - `SCRATCHPAD.md` — untracked scratch space for drafting prompts and half-formed ideas. Do not act on its contents unless explicitly asked.
 - No `docs/` or `tasks/` folder is set up by default — most work is driven directly from prompts and doesn't need a persistent artifact. If a design doc or task list becomes genuinely useful, it's fine to add one: prefer a top-level `.md` (e.g. `tasks-<topic>.md`, `design-<topic>.md`) until there are enough to justify a folder.
-
-### Task tracking
-
-Work is usually driven through direct prompts. What must survive the session goes to **Linear**, not to a file here. The rule, stated once:
-
-**One project per track, and the project name *is* the track name.** There is no stored track→project mapping — not here, not in the axis track index. Duplicating the mapping is what would let it drift; stating the rule is what prevents that. To find this track's work, look for the project named after the track.
-
-**Labels:** `startable` (an agent can begin now — no gate, no unmet dependency), `blocked-on-user` (needs the user specifically), `parked-until-graduates` (held deliberately, not scheduled — where medium-to-long-term ideas go).
-
-`startable` is a readiness marking, **not** a grant of authority to execute unasked — see *Task Management* below.
-
-A per-effort implementation plan is still welcome as a local `.md` when an effort is large enough to need one — a plan is read as a document, not a queue. Linear tracks the effort.
-
-**What does NOT go to Linear.** Durable records stay in the repo, and getting this wrong is how the tracker fills with things nobody can close:
-
-| Class | Test | Home |
-|---|---|---|
-| **TASK** | Open, future-facing. Someone must do something. | Linear |
-| **RECORD** | Past-facing — diagnosis, measurement, ruling, as-built. Value is being read later. | A top-level `.md` here (see *Documentation Organization*) |
-| **HYBRID** | Open task whose body is mostly record. | Both; the issue links to the doc |
-| **STANDING NOTE** | Neither past nor actionable — a caution that stays true and an agent needs *while working*. | This file, or a doc `.md`. **Never Linear** |
 
 ### Task Management
 - Work is usually driven through direct prompts.
 - Persistent task `.md` files aren't required, but they're welcome when an effort is large enough that tracking it across sessions helps. When one exists, treat its tasks as pre-approved unless stated otherwise.
-- **Pre-approval carries to Linear issues labeled `startable`** (only Anton applies that label) — decided 2026-09-01 (ASH-168). Issues without the label: present an approach first.
+- **Pre-approval carries to issues whose `owner` is `anton:agent`** — decided 2026-09-01, re-expressed on the new field 2026-09-08. Issues without that owner: present an approach first.
 
 ### Planning & Scope
 - For small, well-scoped changes, just do it — no upfront planning needed unless requested.
