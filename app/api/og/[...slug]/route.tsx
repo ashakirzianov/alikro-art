@@ -87,6 +87,7 @@ function AssetLine({ assets, height, }: {
           src={imageSrc({
             fileName: asset.fileName,
             width,
+            format: 'jpeg',
           })}
           alt={assetAlt(asset)}
           style={{

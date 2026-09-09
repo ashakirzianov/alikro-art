@@ -1,15 +1,17 @@
 export function imageSrc({
-    fileName, width, quality,
+    fileName, width, quality, format = 'webp',
 }: {
     fileName: string,
     width?: number,
     quality?: number,
+    // Satori (next/og) cannot decode webp, so the OG route asks for jpeg instead
+    format?: 'webp' | 'png' | 'jpeg',
 }) {
     return `${process.env.NEXT_PUBLIC_IMG_BASE}/${variantFileName({
         originalName: fileName,
         width,
         quality,
-        format: 'webp',
+        format,
     })}`
 }
 
