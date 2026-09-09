@@ -6,6 +6,9 @@ import { getTiles } from "@/app/(detailed)/tiles"
 
 const WIDTH = 1200
 const HEIGHT = 600
+// Rendering ~15 images through satori exceeds Vercel's 10s default
+export const maxDuration = 60
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string[] }> },
@@ -17,6 +20,10 @@ export async function GET(
     {
       width: WIDTH,
       height: HEIGHT,
+      headers: {
+        // The render is expensive, so let the CDN serve it rather than recompute per crawl
+        'Cache-Control': 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400',
+      },
     },
   )
 }
