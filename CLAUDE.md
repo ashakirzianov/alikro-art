@@ -12,7 +12,7 @@ The project is small, so the workflow here is lighter than in the more structure
 
 ### Documentation Organization
 - `CLAUDE.md` — conventions and guidance for Claude Code (this file).
-- **Tasks, issues and ideas live in the tracker, not in this repo.** How to use it — the tools, the vocabularies, and what belongs in a repo instead — is fleet-wide guidance every agent already carries; this repo adds nothing to it. `IDEAS.md` still exists as the migration's rollback and is **retired, not authoritative**; do not capture to it.
+- **Tasks, issues and ideas live in the tracker, not in this repo.** How to use it — the tools, the vocabularies, and what belongs in a repo instead — is fleet-wide guidance every agent already carries; this repo adds nothing to it.
 - `TRACK.md` — which track this repo belongs to, and its slug. The slug is the tracker's project name and is declared there and nowhere else.
 - `SCRATCHPAD.md` — untracked scratch space for drafting prompts and half-formed ideas. Do not act on its contents unless explicitly asked.
 - No `docs/` or `tasks/` folder is set up by default — most work is driven directly from prompts and doesn't need a persistent artifact. If a design doc or task list becomes genuinely useful, it's fine to add one: prefer a top-level `.md` (e.g. `tasks-<topic>.md`, `design-<topic>.md`) until there are enough to justify a folder.

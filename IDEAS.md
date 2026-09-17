@@ -1,1 +1,0 @@
-- We should reimplement gallery using CSS native masonry layout once it is fully landed (we are getting very close to it, I think)
