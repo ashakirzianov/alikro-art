@@ -20,7 +20,7 @@ The project is small, so the workflow here is lighter than in the more structure
 ### Task Management
 - Work is usually driven through direct prompts.
 - Persistent task `.md` files aren't required, but they're welcome when an effort is large enough that tracking it across sessions helps. When one exists, treat its tasks as pre-approved unless stated otherwise.
-- **Pre-approval carries to issues whose `owner` is `anton:agent`** — decided 2026-09-01, re-expressed on the new field 2026-09-08. Issues without that owner: present an approach first.
+- **Pre-approval carries to issues labeled `agent-ready`** — decided 2026-09-01, re-expressed as a label 2026-09-29. Issues without it: present an approach first.
 
 ### Planning & Scope
 - For small, well-scoped changes, just do it — no upfront planning needed unless requested.
