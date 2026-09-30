@@ -29,10 +29,9 @@ The project is small, so the workflow here is lighter than in the more structure
 - For non-trivial design decisions (type restructuring, naming, API shape), engage in discussion before implementing. Present concrete options with tradeoffs and a recommendation, but let the user choose.
 
 ### Code Changes
-- **Review posture: owned.** The user reviews changes before they land.
-- Small incremental commits.
-- The user makes all commits — do NOT commit unless explicitly asked.
-- Propose a commit message after each change.
+- **Review posture: owned.** The user reviews changes before they are pushed.
+- Small incremental commits, one logical unit each. Agents commit on their own, staging only the files they touched.
+- Pushing is the user's call — do NOT push unless explicitly asked.
 - Only add tests when explicitly asked.
 - Always run `npm run build` after completing a change. Fix any errors before presenting the summary. Don't present work as done without a passing build.
 
