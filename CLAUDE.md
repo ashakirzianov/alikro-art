@@ -94,6 +94,8 @@ Required env vars:
 - `XAXIS_WEBHOOK_SECRET` — the secret of the `hooks/site` webhook, which signs its POSTs to `/api/revalidate`.
 - `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`); `https://xaxis.app`.
 
+The build prerenders pages from the works endpoint, and `shared/cms.ts` throws when `XAXIS_WORKS_URL` or `XAXIS_SITE_KEY` is unset or the fetch fails, so `npm run build` fails without them, locally too: set both in `.env.local`. This is deliberate: a failed build keeps the previous deployment live, where an empty answer would prerender and cache an empty site.
+
 Retiring after cutover: `NEXT_PUBLIC_CROW_CMS` and `CROW_CMS_SECRET_KEY` (used only by `/api/revalidate/[tag]` now), and `NEXT_PUBLIC_IMG_BASE` (unused).
 
 ## Related projects

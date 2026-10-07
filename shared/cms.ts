@@ -4,11 +4,10 @@ import { AssetMetadata } from "./asset"
 export async function fetchAllAssetMetadata(): Promise<AssetMetadata[]> {
     const url = process.env.XAXIS_WORKS_URL
     const key = process.env.XAXIS_SITE_KEY
-    if (!url) {
-        console.warn('XAXIS_WORKS_URL is not set, so there are no works to show')
-        return []
+    // Every failure throws rather than answering [], so neither a build nor the cache ever stores an empty site
+    if (!url || !key) {
+        throw new Error('XAXIS_WORKS_URL and XAXIS_SITE_KEY must both be set')
     }
-    // A failed fetch throws rather than answering [], so the cache never stores an empty site
     const res = await fetch(url, {
         headers: { Authorization: `Bearer ${key}` },
     })
