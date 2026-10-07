@@ -108,7 +108,7 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
 3. **Import:** rehearsal, then the full import, then verification (§2).
-4. **Parallel run:** U1–U6 on the branch's preview reading xaxis, while production stays on crow. Alina keeps editing in crow, and re-running the importer keeps xaxis in step. The preview picks up importer runs through a signed curl or a redeploy, because `hooks/site` targets production.
+4. **Parallel run:** U1–U6 on the branch's preview reading xaxis, while production stays on crow. Alina keeps editing in crow, and re-running the importer keeps xaxis in step. The preview picks up importer runs through a signed curl or a redeploy, because `hooks/site` targets production. The project's ignored-build step builds only production and pull requests, so the preview is a CLI deploy of the worktree (`vercel deploy`) with the xaxis variables passed per deployment. The branch-scoped Preview variables exist in Vercel, but CLI deploys don't pick them up.
 5. **Freeze:** Alina stops editing in crow. A final importer run follows, and the diff must be empty.
 6. **Switch:** production env vars are set, and Anton merges and pushes. Then "Send now" on the webhook, pre-warm the OG URLs, and Alina edits in xaxis from then on. Anton works out the editing UX with Alina directly.
 
