@@ -9,10 +9,9 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 | | Live | February backup (`assets.json`) | xaxis limit |
 |---|---|---|---|
 | Works | 639 | 523 | — |
-| Originals, total | 1,254 MB (1,196 MiB) | 949 MB **500 MiB per workspace owner: exceeded 2.4×**. Production's `user_limits` is empty (xaxis lead, 2026-10-07) |
+| Originals, total | 1,254 MB (1,196 MiB) | 949 MB | 10 GB per owner: raised on production 2026-10-07 for both of Anton's accounts and Alina's |
 | Largest file | 10.4 MB (`Flower_5.png`) | 10.4 MB | 25 MiB per file |
 
-- **The limit must be raised before the import.** It is an `INSERT INTO user_limits` on production for the account that owns `alikro-art`. That write is Anton's; there is no tool or UI for it (§5).
 - `assets.json` is stale, so the import reads crow live.
 - **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. The xaxis lead ruled it an omission: `xaxis/tiff-images`, urgent, blocks the migration.
 - **1 id breaks xaxis's name grammar**: `plate-with-the--dog` becomes `plate-with-the-dog`, with no redirect (ruled).
@@ -21,7 +20,7 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 
 ## 1. Target content model
 
-Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's default workspace, owned by her account). It does not exist yet, and which of Anton's two accounts owns it is open (§5). There is one file object per work, at `works/<id>`, and its content is the file pointer.
+Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's default workspace, owned by her account). It does not exist yet. Either of Anton's accounts may create it; both are covered by the raised limit. There is one file object per work, at `works/<id>`, and its content is the file pointer.
 
 | crow field | xaxis | Notes |
 |---|---|---|
@@ -94,7 +93,7 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 ## 4. Cutover
 
-1. **Prerequisites:** `xaxis/time-property` and `xaxis/tiff-images` closed; `alikro-art` created under the chosen account; that account's `user_limits` row inserted.
+1. **Prerequisites:** `xaxis/time-property` and `xaxis/tiff-images` closed; `alikro-art` created by Anton.
 2. **Setup:**
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
@@ -117,9 +116,8 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 ## 5. Open
 
-1. **Which account owns `alikro-art`, and its limit.** Anton has two accounts: `ashakirzianov@icloud.com`, which owns the `ashakirzianov` workspace and is the one agents connect as, and `shakirzyanov@gmail.com`. Recommend the iCloud account, so the import and the agents work against Anton's usual identity, with a `user_limits` row of 10 GB storage and the default 25 MB per file. That fits this corpus (1.2 GiB) and its growth, plus `andjan-art` if it lands under the same owner. The insert is Anton's.
-2. **`public-flag`:** the name is Anton's. It is our own release state, separate from `xaxis-public-flag` (§1). Settled unless Anton prefers `published-flag` to keep it visibly apart from xaxis's flag.
+1. **`public-flag`:** the name is Anton's. It is our own release state, separate from `xaxis-public-flag` (§1). Settled unless Anton prefers `published-flag` to keep it visibly apart from xaxis's flag.
 
 Blocked on xaxis, owned by the xaxis lead and set as blockers of `alikro-art/migrate-to-xaxis-cms`:
-- `xaxis/time-property` (urgent, needs design)
-- `xaxis/tiff-images` (urgent, small)
+- `xaxis/time-property` (urgent): a designer is working with Anton.
+- `xaxis/tiff-images` (urgent, small): a builder is on it.
