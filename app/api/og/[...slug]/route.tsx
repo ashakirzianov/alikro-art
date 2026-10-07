@@ -9,6 +9,7 @@ const WIDTH = 1200
 const HEIGHT = 600
 // The widths xaxis serves variants at; a placed image fetches the smallest one that covers it
 const VARIANT_WIDTHS = [96, 160, 320, 480, 640, 768, 960, 1200, 1600, 1920, 2560]
+const IMAGE_TIMEOUT_MS = 10_000
 // Rendering ~15 images through satori exceeds Vercel's 10s default
 export const maxDuration = 60
 
@@ -28,6 +29,7 @@ export async function GET(
   const images = await Promise.all(lines.map(line => Promise.all(
     line.assets.map(asset => imageForAsset({ asset, height: line.height })),
   )))
+  const isComplete = images.every(line => line.every(image => image.dataUri !== undefined))
   return new ImageResponse(
     <Preview lines={lines.map((line, index) => ({
       height: line.height,
@@ -37,8 +39,12 @@ export async function GET(
       width: WIDTH,
       height: HEIGHT,
       headers: {
-        // The render is expensive, so let the CDN serve it rather than recompute per crawl
-        'Cache-Control': 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400',
+        // Lowercase, so it replaces ImageResponse's default rather than joining it.
+        // The render is expensive, so let the CDN serve it rather than recompute per crawl,
+        // unless an image is missing: then the next request should try again
+        'cache-control': isComplete
+          ? 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400'
+          : 'no-store',
       },
     },
   )
@@ -134,7 +140,8 @@ async function imageForAsset({ asset, height }: {
   const variantWidth = VARIANT_WIDTHS.find(w => w >= width) ?? VARIANT_WIDTHS[VARIANT_WIDTHS.length - 1]
   const url = imageSrc({ src: asset.src, width: variantWidth })
   try {
-    const res = await fetch(url)
+    // The timeout covers reading the body too
+    const res = await fetch(url, { signal: AbortSignal.timeout(IMAGE_TIMEOUT_MS) })
     if (!res.ok) {
       console.error(`OG image fetch failed: ${res.status} ${url}`)
       return { asset, width, dataUri: undefined }
