@@ -1,5 +1,3 @@
-import { collectionForId } from "./collection"
-
 export function hrefForSlideshow() {
     return '/'
 }
@@ -53,42 +51,12 @@ export function hrefForMaterial({ material }: {
     return `/material/${encodeURIComponent(material ?? 'unspecified')}`
 }
 
-export function hrefForConsole({
-    filter, action, assetId
-}: {
-    filter?: string,
-    action?: string,
+// The work's object in xaxis, or the works folder without one
+export function hrefForConsole({ assetId }: {
     assetId?: string,
-}): string {
-    const searchParams = new URLSearchParams()
-    if (filter) {
-        searchParams.set('filter', filter)
-    }
-    if (assetId) {
-        searchParams.set('aside', `edit:${assetId}`)
-    } else if (action) {
-        searchParams.set('aside', action)
-    }
-    const path = searchParams.size === 0
-        ? '/alikro'
-        : `/alikro?${searchParams.toString()}`
-    return `${process.env.NEXT_PUBLIC_CROW_CMS}/projects${path}`
-}
-
-export function filterForPathname(pathname: string | undefined) {
-    if (pathname === undefined) {
-        return undefined
-    } else if (pathname.startsWith('/tag/')) {
-        const tag = pathname.substring('/tag/'.length)
-        return tag
-    }
-    const id = pathname.substring(1)
-    const collection = collectionForId(id)
-    if (collection) {
-        return typeof collection.query === 'string'
-            ? collection.query
-            : undefined
-    } else {
-        return undefined
-    }
+} = {}): string {
+    const base = process.env.NEXT_PUBLIC_XAXIS_URL
+    return assetId
+        ? `${base}/o/alikro-art:works/${assetId}`
+        : `${base}/ws/alikro-art/p/works`
 }

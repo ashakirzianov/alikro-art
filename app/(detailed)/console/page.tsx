@@ -1,15 +1,16 @@
 'use client'
 
+import { hrefForConsole } from "@/shared/href"
 import { useShowEditButton } from "@/shared/setting"
 
-const cmsUrl = process.env.NEXT_PUBLIC_CROW_CMS
+const xaxisUrl = process.env.NEXT_PUBLIC_XAXIS_URL
 
 export default function Page() {
     const [showEditButton, setShowEditButton] = useShowEditButton()
     return <section className="flex flex-col items-start max-w-prose w-full px-6 py-8 md:px-10 md:py-12 gap-8 md:gap-10">
         <h1 className="text-3xl font-semibold leading-tight">Console</h1>
-        {cmsUrl && <a
-            href={`${cmsUrl}/projects/alikro`}
+        {xaxisUrl && <a
+            href={hrefForConsole()}
             target="_blank"
             rel="noopener noreferrer"
             className="text-lg text-accent underline"
