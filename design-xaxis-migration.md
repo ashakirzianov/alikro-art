@@ -49,10 +49,11 @@ The import sets both on all 639 works, tattoos and the two `hidden` works includ
 
 - **Script:** `scripts/import-to-xaxis.mjs`, one-off, deleted at retirement. It reads crow's live metadata, downloads each original from crow's public CloudFront (`<domain>/alikro/originals/<fileName>`, the same bytes as S3, so no AWS credentials), and follows the cookbook's "Bulk import": `upload-file`, then the PUT, then `finish-upload`, then `mutate` with about 50 `create!`s per commit.
 - **Key:** `keys/import` in `alikro-art`, a text key with `xaxis-api-key-mcp-flag`. Anton locks it and mints a secret on its page, and the script reads the secret from `XAXIS_IMPORT_KEY`. The endpoint is `https://xaxis.app/ws/alikro-art/api/mcp`. The key is deleted after cutover.
-- **Idempotency:** for each work, the script hashes the bytes locally and reads `works/<id>`.
+- **Idempotency:** for each work, the script reads `works/<id>` and HEADs crow's original.
   - Missing: upload and create.
-  - Same `sha256`: `update!` only the properties that differ.
-  - Different `sha256`: `set-content!` with the new file.
+  - Same file name and size: the same bytes, since crow never reuses a file name for live works. Then `update!` only the properties that differ.
+  - Otherwise: upload, then `set-content!` plus `update!` in one commit, so properties set only in xaxis survive.
+  - Each pointer is named with crow's file name. `(file sha)` alone would take the name of the hash's first upload, and `rose` and `rose-2` are byte-identical.
   - A second run is a no-op, and it doubles as the delta sync before cutover.
   - Works in xaxis but not in crow are reported, and deleted only with `--apply-deletes`.
 - **Rehearsal:** about 40 works chosen for edge cases (the largest files, the TIFFs, the GIF, `plate-with-the--dog`, the work without `order`, works without tags, EXIF-rotated JPEGs), imported with `--only` into `alikro-art` itself, run twice (the second run must change nothing) and read through `npm run dev`. Then the full import. A separate rehearsal workspace would cost Anton a second lock and mint, and nothing reads `alikro-art` until cutover.
@@ -79,7 +80,9 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 **U4. Revalidation.** A new `app/api/revalidate/route.ts` accepts a POST, checks `X-Xaxis-Signature` (an HMAC-SHA256 of the body, compared in constant time) against `XAXIS_WEBHOOK_SECRET`, and calls `revalidateTag('cms-content', 'max')`. The webhook `hooks/site` posts to **`https://www.alikro.art/api/revalidate`**: the apex 307-redirects there, and webhooks don't follow redirects.
 - *Stays:* the old `[tag]` route, until retirement.
-- *Verify:* "Send now" returns 200; a bad signature returns 401; an edit in xaxis shows on the site after a reload.
+- *Verify:*
+  - On the preview, with a preview-only `XAXIS_WEBHOOK_SECRET`, a correctly signed curl gets 200 and a bad signature gets 401.
+  - `hooks/site` itself can only be tested after the switch, since `www` runs `main` until then: "Send now" returns 200, and an edit shows within two reloads (`'max'` serves stale content once).
 
 **U5. Edit links.** `hrefForConsole` points to `https://xaxis.app/o/alikro-art:works/<id>`. The console's "Open Editor" opens the `works/` folder (`/ws/alikro-art/p/works`). crow's `filter` parameter is dropped. `NEXT_PUBLIC_XAXIS_URL` replaces `NEXT_PUBLIC_CROW_CMS` here.
 - *Verify:* edit links on the preview open the right object.
@@ -98,7 +101,7 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
 3. **Import:** rehearsal, then the full import, then verification (§2).
-4. **Parallel run:** U1–U6 on the branch's preview reading xaxis, while production stays on crow. Alina keeps editing in crow, and re-running the importer keeps xaxis in step.
+4. **Parallel run:** U1–U6 on the branch's preview reading xaxis, while production stays on crow. Alina keeps editing in crow, and re-running the importer keeps xaxis in step. The preview picks up importer runs through a signed curl or a redeploy, because `hooks/site` targets production.
 5. **Freeze:** Alina stops editing in crow. A final importer run follows, and the diff must be empty.
 6. **Switch:** production env vars are set, and Anton merges and pushes. Then "Send now" on the webhook, pre-warm the OG URLs, and Alina edits in xaxis from then on. Anton works out the editing UX with Alina directly.
 
