@@ -112,6 +112,12 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 5. **Freeze:** Alina stops editing in crow. A final importer run follows, and the diff must be empty.
 6. **Switch:** production env vars are set, and Anton merges and pushes. Then "Send now" on the webhook, pre-warm the OG URLs, and Alina edits in xaxis from then on. Anton works out the editing UX with Alina directly.
 
+**Done 2026-10-07:**
+- Alina stopped editing in crow, and the final importer run changed nothing.
+- `main` merged the branch (`338ff71`), and production has been on xaxis since about 18:45 Buenos Aires time.
+- Two real webhook deliveries revalidated `cms-content` in production.
+- All 55 OG URLs (collections, tags, years) are warm and complete; the slowest cold render was 9.7 s.
+
 **Rollback:** Vercel's instant rollback to the last crow deployment. crow is untouched and its hook still fires. Edits made in xaxis after the switch would have to be re-entered in crow, so the rollback window is short (about a week).
 
 **Retires after about two weeks of stable running:**
