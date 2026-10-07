@@ -1,6 +1,6 @@
 # Moving alikro.art from crow-cms to xaxis
 
-Plan for `alikro-art/migrate-to-xaxis-cms`. Drafted 2026-10-07; Anton's first review ruled on most questions the same day. xaxis side: production at `46b7c5e`, gap list in `xaxis/alikro-art-cms`. No site code changes until the remaining points (§5) are settled.
+Plan for `alikro-art/migrate-to-xaxis-cms`. Drafted 2026-10-07 and approved by Anton the same day. xaxis side: production at `46b7c5e`, gap list in `xaxis/alikro-art-cms`.
 
 ## 0. The corpus
 
@@ -20,7 +20,7 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 
 ## 1. Target content model
 
-Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's default workspace, owned by her account). It does not exist yet. Either of Anton's accounts may create it; both are covered by the raised limit. There is one file object per work, at `works/<id>`, and its content is the file pointer.
+Workspace **`alikro-art`**, owned by Anton's `ashakirzianov` account for now (ruled; `alikro` is Alina's default workspace). There is one file object per work, at `works/<id>`, and its content is the file pointer.
 
 | crow field | xaxis | Notes |
 |---|---|---|
@@ -34,20 +34,20 @@ Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's d
 | `year` | `year-number` | |
 | `material` | `material` | |
 | `tags` | `tags-list` | 440 works have tags. |
-| `kind: "unpublished"` | absence of **`public-flag`** | Our own property (§5). |
+| `kind: "unpublished"` | absence of **`published-flag`** | Our own property (ruled). |
 | — | `xaxis-public-flag` on every work | xaxis's file-publishing switch: without it a file has no public image URL. |
 
 **Publish state.** Two separate facts:
-- **`public-flag`** (ours) means the work is released. It is absent while a new upload awaits review, so the review list is "works without `public-flag`".
+- **`published-flag`** (ours) means the work is released. It is absent while a new upload awaits review, so the review list is "works without `published-flag`".
 - **`xaxis-public-flag`** (xaxis's) means its image is served by the CDN.
 
 The import sets both on all 639 works, tattoos and the two `hidden` works included. Tattoos stay out of the review list, and the site keeps hiding them by kind in code. Exposing their image URLs is fine (ruled).
 
-**The read:** `api/works` is a function with `xaxis-api-path: works` and `xaxis-api-key-ref: keys/site`, called with `GET`, and Anton locks it. It returns the works with `public-flag` as `{id, src, width, height, uploaded, order, kind, title, year, material, tags}`, where `src` is `(file-url name)`, the full-size `…@.webp` URL. A work with `public-flag` but no `xaxis-public-flag` has `src: null`, and the site drops it.
+**The read:** `api/works` is a function with `xaxis-api-path: works` and `xaxis-api-key-ref: keys/site`, called with `GET`, and Anton locks it. It returns the works with `published-flag` as `{id, src, width, height, uploaded, order, kind, title, year, material, tags}`, where `src` is `(file-url name)`, the full-size `…@.webp` URL. A work with `published-flag` but no `xaxis-public-flag` has `src: null`, and the site drops it.
 
 ## 2. The import
 
-- **Script:** `scripts/import-to-xaxis.mjs`, one-off, deleted at retirement. It reads crow's live metadata, gets each original from S3 with crow's read credentials, and follows the cookbook's "Bulk import": `upload-file`, then the PUT, then `finish-upload`, then `mutate` with about 50 `create!`s per commit.
+- **Script:** `scripts/import-to-xaxis.mjs`, one-off, deleted at retirement. It reads crow's live metadata, downloads each original from crow's public CloudFront (`<domain>/alikro/originals/<fileName>`, the same bytes as S3, so no AWS credentials), and follows the cookbook's "Bulk import": `upload-file`, then the PUT, then `finish-upload`, then `mutate` with about 50 `create!`s per commit.
 - **Key:** `keys/import` in `alikro-art`, a text key with `xaxis-api-key-mcp-flag`. Anton locks it and mints a secret on its page, and the script reads the secret from `XAXIS_IMPORT_KEY`. The endpoint is `https://xaxis.app/ws/alikro-art/api/mcp`. The key is deleted after cutover.
 - **Idempotency:** for each work, the script hashes the bytes locally and reads `works/<id>`.
   - Missing: upload and create.
@@ -55,7 +55,7 @@ The import sets both on all 639 works, tattoos and the two `hidden` works includ
   - Different `sha256`: `set-content!` with the new file.
   - A second run is a no-op, and it doubles as the delta sync before cutover.
   - Works in xaxis but not in crow are reported, and deleted only with `--apply-deletes`.
-- **Rehearsal:** a throwaway workspace, `alikro-art-rehearsal`, with about 40 works chosen for edge cases: the largest files, the TIFFs, the GIF, `plate-with-the--dog`, the work without `order`, works without tags, and EXIF-rotated JPEGs. The script runs there twice (the second run must change nothing) and `npm run dev` runs against it. Then the workspace is deleted. The full import into `alikro-art` is itself staged, since the site isn't switched yet.
+- **Rehearsal:** about 40 works chosen for edge cases (the largest files, the TIFFs, the GIF, `plate-with-the--dog`, the work without `order`, works without tags, EXIF-rotated JPEGs), imported with `--only` into `alikro-art` itself, run twice (the second run must change nothing) and read through `npm run dev`. Then the full import. A separate rehearsal workspace would cost Anton a second lock and mint, and nothing reads `alikro-art` until cutover.
 - **Verification** after the full import:
   - 639 objects.
   - A property-by-property diff against crow comes out empty.
@@ -86,14 +86,14 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 **U6. Docs.** Update `CLAUDE.md` (architecture, env, related projects). Start `DECISIONS.md` with entries for:
 - xaxis as the content source
-- `public-flag` as the release state
+- `published-flag` as the release state
 - `uploaded-time`
 - the OG WebP-to-JPEG conversion
 - the `www` webhook host
 
 ## 4. Cutover
 
-1. **Prerequisites:** Anton's go on this plan; `alikro-art` created by the account Anton picks.
+1. **Prerequisites:** `alikro-art` created by Anton's `ashakirzianov` account.
 2. **Setup:**
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
@@ -114,10 +114,18 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 - crow: `revalidateTagHook` and `ALIKRO_SECRET_KEY`, through `axis/retire-crow-cms-track`
 - `img.alikro.art` and the S3 bucket stay up **one month** after cutover for outside links (ruled), then retire with crow.
 
-## 5. Open
+## 5. Rulings
 
-1. **Anton's go on this plan.**
-2. **Which of Anton's accounts creates `alikro-art`.** Both have 10 GB. Recommend `ashakirzianov@icloud.com`, the account agents connect as.
-3. **`public-flag`:** the name is Anton's and stands unless he prefers `published-flag`, to keep it visibly apart from xaxis's flag.
+Anton, 2026-10-07:
+- The workspace is `alikro-art`, created by `ashakirzianov`.
+- The release state is our own `published-flag`.
+- Tattoos are released and their image URLs are public.
+- `plate-with-the--dog` is renamed with no redirect.
+- `img.alikro.art` stays up one month after cutover.
+- Site work happens on a branch in its own worktree.
+- Anton works out the editing UX with Alina directly.
 
-Both xaxis blockers (`xaxis/time-property`, `xaxis/tiff-images`) are closed and on production at `26508ab`.
+xaxis gaps closed for this migration, on production at `26508ab`:
+- `xaxis/time-property`, which gives `uploaded-time`
+- `xaxis/tiff-images`
+- the storage limit, raised to 10 GB per owner
