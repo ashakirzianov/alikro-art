@@ -48,7 +48,7 @@ The import sets both on all 639 works, tattoos and the two `hidden` works includ
 ## 2. The import
 
 - **Script:** `scripts/import-to-xaxis.mjs`, one-off, deleted at retirement. It reads crow's live metadata, downloads each original from crow's public CloudFront (`<domain>/alikro/originals/<fileName>`, the same bytes as S3, so no AWS credentials), and follows the cookbook's "Bulk import": `upload-file`, then the PUT, then `finish-upload`, then `mutate` with about 50 `create!`s per commit.
-- **Key:** `keys/import` in `alikro-art`, a text key with `xaxis-api-key-mcp-flag`. Anton locks it and mints a secret on its page, and the script reads the secret from `XAXIS_IMPORT_KEY`. The endpoint is `https://xaxis.app/ws/alikro-art/api/mcp`. The key is deleted after cutover.
+- **Key:** `keys/import` in `alikro-art`, a text key with `xaxis-api-key-mcp-flag`. Anton locks it and mints a secret on its page, and the script reads the secret from `XAXIS_IMPORT_KEY`. The endpoint is `https://www.xaxis.app/ws/alikro-art/api/mcp`. The key is deleted after cutover.
 - **Idempotency:** for each work, the script reads `works/<id>` and HEADs crow's original.
   - Missing: upload and create.
   - Same file name and size: the same bytes, since crow never reuses a file name for live works. Then `update!` only the properties that differ.
@@ -84,7 +84,7 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
   - On the preview, with a preview-only `XAXIS_WEBHOOK_SECRET`, a correctly signed curl gets 200 and a bad signature gets 401.
   - `hooks/site` itself can only be tested after the switch, since `www` runs `main` until then: "Send now" returns 200, and an edit shows within two reloads (`'max'` serves stale content once).
 
-**U5. Edit links.** `hrefForConsole` points to `https://xaxis.app/o/alikro-art:works/<id>`. The console's "Open Editor" opens the `works/` folder (`/ws/alikro-art/p/works`). crow's `filter` parameter is dropped. `NEXT_PUBLIC_XAXIS_URL` replaces `NEXT_PUBLIC_CROW_CMS` here.
+**U5. Edit links.** `hrefForConsole` points to `https://www.xaxis.app/o/alikro-art:works/<id>`. The console's "Open Editor" opens the `works/` folder (`/ws/alikro-art/p/works`). crow's `filter` parameter is dropped. `NEXT_PUBLIC_XAXIS_URL` replaces `NEXT_PUBLIC_CROW_CMS` here.
 - *Verify:* edit links on the preview open the right object.
 
 **U6. Docs.** Update `CLAUDE.md` (architecture, env, related projects). Start `DECISIONS.md` with entries for:
