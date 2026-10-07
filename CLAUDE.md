@@ -89,10 +89,10 @@ The project is small, so the workflow here is lighter than in the more structure
 ## Environment
 
 Required env vars:
-- `XAXIS_WORKS_URL` — the works endpoint (`shared/cms.ts`); `https://xaxis.app/ws/alikro-art/api/works` in production.
+- `XAXIS_WORKS_URL` — the works endpoint (`shared/cms.ts`); `https://www.xaxis.app/ws/alikro-art/api/works` in production. Use `www`: the apex redirects there, and `fetch` drops `Authorization` on a cross-origin redirect.
 - `XAXIS_SITE_KEY` — bearer secret for that endpoint, minted on `keys/site` in `alikro-art`.
 - `XAXIS_WEBHOOK_SECRET` — the secret of the `hooks/site` webhook, which signs its POSTs to `/api/revalidate`.
-- `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`); `https://xaxis.app`.
+- `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`); `https://www.xaxis.app`.
 
 The build prerenders pages from the works endpoint, and `shared/cms.ts` throws when `XAXIS_WORKS_URL` or `XAXIS_SITE_KEY` is unset or the fetch fails, so `npm run build` fails without them, locally too: set both in `.env.local`. This is deliberate: a failed build keeps the previous deployment live, where an empty answer would prerender and cache an empty site.
 

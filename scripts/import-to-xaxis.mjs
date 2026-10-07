@@ -9,7 +9,7 @@
 import { createHash } from 'node:crypto'
 
 const WORKSPACE = 'alikro-art'
-const XAXIS_MCP = `https://xaxis.app/ws/${WORKSPACE}/api/mcp`
+const XAXIS_MCP = `https://www.xaxis.app/ws/${WORKSPACE}/api/mcp`
 // crow's CloudFront serves the originals publicly: the same bytes as S3
 const CROW_ORIGINALS = 'https://ddj4fy891wvdw.cloudfront.net/alikro/originals'
 const BATCH = 50
