@@ -13,7 +13,7 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 | Largest file | 10.4 MB (`Flower_5.png`) | 10.4 MB | 25 MiB per file |
 
 - `assets.json` is stale, so the import reads crow live.
-- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. The xaxis lead ruled it an omission: `xaxis/tiff-images`, urgent, blocks the migration.
+- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. Fixed in `xaxis/tiff-images` (done 2026-10-07): TIFF is detected as `image/tiff` and gets WebP variants. It reaches production when Anton pushes xaxis.
 - **1 id breaks xaxis's name grammar**: `plate-with-the--dog` becomes `plate-with-the-dog`, with no redirect (ruled).
 - **1 GIF** (`gay-love-1`): fine, because xaxis keeps the animation in its variants.
 - 494 works are narrower than 1920 px. xaxis serves a wider request at the original width without enlarging, so the loader's widths stand.
@@ -93,7 +93,7 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 ## 4. Cutover
 
-1. **Prerequisites:** `xaxis/time-property` and `xaxis/tiff-images` closed; `alikro-art` created by Anton.
+1. **Prerequisites:** `xaxis/time-property` closed; the `xaxis/tiff-images` fix pushed to production; `alikro-art` created by Anton.
 2. **Setup:**
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
@@ -120,4 +120,4 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 Blocked on xaxis, owned by the xaxis lead and set as blockers of `alikro-art/migrate-to-xaxis-cms`:
 - `xaxis/time-property` (urgent): a designer is working with Anton.
-- `xaxis/tiff-images` (urgent, small): a builder is on it.
+- `xaxis/tiff-images`: done; needs Anton's xaxis push to reach production.
