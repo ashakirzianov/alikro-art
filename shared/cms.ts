@@ -8,12 +8,12 @@ export async function fetchAllAssetMetadata(): Promise<AssetMetadata[]> {
         console.warn('XAXIS_WORKS_URL is not set, so there are no works to show')
         return []
     }
+    // A failed fetch throws rather than answering [], so the cache never stores an empty site
     const res = await fetch(url, {
         headers: { Authorization: `Bearer ${key}` },
     })
     if (!res.ok) {
-        console.error(`Fetching works failed: ${res.status} ${res.statusText}`)
-        return []
+        throw new Error(`Fetching works failed: ${res.status} ${res.statusText}`)
     }
     const works: Work[] = await res.json()
     return works.flatMap(work => {
