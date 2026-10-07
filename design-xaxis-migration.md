@@ -9,25 +9,26 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 | | Live | February backup (`assets.json`) | xaxis limit |
 |---|---|---|---|
 | Works | 639 | 523 | — |
-| Originals, total | 1,254 MB (1,196 MiB) | 949 MB | 500 MiB per owner by default; **probably 10 GB for `ashakirzianov` and `alikro`**, being confirmed with the xaxis lead |
+| Originals, total | 1,254 MB (1,196 MiB) | 949 MB **500 MiB per workspace owner: exceeded 2.4×**. Production's `user_limits` is empty (xaxis lead, 2026-10-07) |
 | Largest file | 10.4 MB (`Flower_5.png`) | 10.4 MB | 25 MiB per file |
 
+- **The limit must be raised before the import.** It is an `INSERT INTO user_limits` on production for the account that owns `alikro-art`. That write is Anton's; there is no tool or UI for it (§5).
 - `assets.json` is stale, so the import reads crow live.
-- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. Raised with the xaxis lead as a likely product gap (§5).
+- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. The xaxis lead ruled it an omission: `xaxis/tiff-images`, urgent, blocks the migration.
 - **1 id breaks xaxis's name grammar**: `plate-with-the--dog` becomes `plate-with-the-dog`, with no redirect (ruled).
 - **1 GIF** (`gay-love-1`): fine, because xaxis keeps the animation in its variants.
 - 494 works are narrower than 1920 px. xaxis serves a wider request at the original width without enlarging, so the loader's widths stand.
 
 ## 1. Target content model
 
-Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's default workspace). There is one file object per work, at `works/<id>`, and its content is the file pointer.
+Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's default workspace, owned by her account). It does not exist yet, and which of Anton's two accounts owns it is open (§5). There is one file object per work, at `works/<id>`, and its content is the file pointer.
 
 | crow field | xaxis | Notes |
 |---|---|---|
 | `id` | name `works/<id>` | |
 | `fileName` | the pointer's `file-name` | The site stops using it and builds URLs from `src`. |
 | `width`, `height` | the pointer's `width`, `height` | Read from the bytes. The import checks them against crow's values (EXIF rotation could swap them). |
-| `uploaded` (ms) | **`uploaded-time`**, pending the xaxis gap | Dates are day-precision, and every live work shares an upload day with another, so a `-date` would change the sort. Anton ruled this an xaxis gap to close before the migration (§5). |
+| `uploaded` (ms) | a time property, shape pending `xaxis/time-property` | Dates are day-precision, and every live work shares an upload day with another, so a `-date` would change the sort. `xaxis/time-property` (urgent, needs design) blocks the migration: a `-time` suffix, or `-date` widened to carry a time. |
 | `order` | `order-number` | 638 of 639 works have it; fractional values exist. |
 | `kind` | `kind` | Values stay, including `tattoo` and `hidden`. |
 | `title` | `xaxis-title` | All 639 have one. |
@@ -87,13 +88,13 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 **U6. Docs.** Update `CLAUDE.md` (architecture, env, related projects). Start `DECISIONS.md` with entries for:
 - xaxis as the content source
 - `public-flag` as the release state
-- `uploaded-time`
+- the `uploaded` time property
 - the OG WebP-to-JPEG conversion
 - the `www` webhook host
 
 ## 4. Cutover
 
-1. **xaxis gaps closed:** `-time`, and TIFF if it is ruled a gap (§5). The limit is confirmed.
+1. **Prerequisites:** `xaxis/time-property` and `xaxis/tiff-images` closed; `alikro-art` created under the chosen account; that account's `user_limits` row inserted.
 2. **Setup:**
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
@@ -116,7 +117,9 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 ## 5. Open
 
-1. **Storage limit:** awaiting the xaxis lead's confirmation of the 10 GB rows.
-2. **Datetime properties (urgent xaxis gap):** proposed a `-time` suffix to the xaxis lead and asked for alternatives. It blocks the import.
-3. **TIFF as an image:** asked the xaxis lead whether leaving it out was deliberate. If it wasn't, the fix is one case plus docs, and it blocks the import of the two TIFFs (or the import converts them to PNG).
-4. **`public-flag`:** the name is Anton's. It is our own release state, separate from `xaxis-public-flag`, as laid out in §1. Settled unless Anton prefers `published-flag` to keep it visibly apart from xaxis's flag.
+1. **Which account owns `alikro-art`, and its limit.** Anton has two accounts: `ashakirzianov@icloud.com`, which owns the `ashakirzianov` workspace and is the one agents connect as, and `shakirzyanov@gmail.com`. Recommend the iCloud account, so the import and the agents work against Anton's usual identity, with a `user_limits` row of 10 GB storage and the default 25 MB per file. That fits this corpus (1.2 GiB) and its growth, plus `andjan-art` if it lands under the same owner. The insert is Anton's.
+2. **`public-flag`:** the name is Anton's. It is our own release state, separate from `xaxis-public-flag` (§1). Settled unless Anton prefers `published-flag` to keep it visibly apart from xaxis's flag.
+
+Blocked on xaxis, owned by the xaxis lead and set as blockers of `alikro-art/migrate-to-xaxis-cms`:
+- `xaxis/time-property` (urgent, needs design)
+- `xaxis/tiff-images` (urgent, small)
