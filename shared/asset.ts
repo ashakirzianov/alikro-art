@@ -49,8 +49,13 @@ export function assetDescription(asset: AssetMetadata) {
 
 export function sortAssets(assets: AssetMetadata[]) {
     return [...assets].sort((a, b) => {
-        if (a.order !== b.order) {
-            return (a.order ?? 0) - (b.order ?? 0)
+        // Compare the defaulted orders: comparing the raw ones made a missing order tie
+        // with 0 without the upload-time tie-break, an inconsistent comparator whose
+        // result depended on the order the CMS returned works in
+        const aOrder = a.order ?? 0
+        const bOrder = b.order ?? 0
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder
         } else if (a.uploaded !== b.uploaded) {
             return b.uploaded - a.uploaded
         } else {
