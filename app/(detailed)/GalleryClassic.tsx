@@ -36,7 +36,7 @@ export function GalleryClassic({
                 <div key={index} className="flex flex-col w-1/4 gap-0">
                     {column.map((asset) => (
                         <Tile
-                            key={asset.fileName}
+                            key={asset.src}
                             asset={asset}
                             pathname={pathname}
                         />

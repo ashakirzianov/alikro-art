@@ -32,7 +32,7 @@ export function AssetImage({ asset, sizes, style, loading, priority }: AssetImag
     const height = assetHeight(asset)
     return (
         <Image
-            src={asset.fileName}
+            src={asset.src}
             loader={loader}
             alt={assetAlt(asset)}
             width={width}

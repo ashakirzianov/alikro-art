@@ -92,7 +92,7 @@ function AssetLine({ assets, height, }: {
         return <img
           key={asset.id}
           src={imageSrc({
-            fileName: asset.fileName,
+            fileName: asset.src,
             width,
             format: 'jpeg',
           })}

@@ -76,7 +76,7 @@ function GalleryGrid({ assets, pathname, onTileClick }: {
                 <div key={colIndex} className="flex flex-col w-1/4 gap-0">
                     {column.map((asset) => (
                         <Tile
-                            key={asset.fileName}
+                            key={asset.src}
                             asset={asset}
                             pathname={pathname}
                             onExpand={onTileClick

@@ -1,9 +1,9 @@
 export type Timestamp = number
 export type AssetMetadata = {
     id: string,
-    fileName: string,
-    width: number,
-    height: number,
+    src: string,
+    width?: number,
+    height?: number,
     uploaded: Timestamp,
     order?: number,
     kind?: string,
@@ -14,7 +14,7 @@ export type AssetMetadata = {
 }
 export type AssetMetadataUpdate = Omit<
     AssetMetadata,
-    'fileName' | 'width' | 'height' | 'uploaded'
+    'src' | 'width' | 'height' | 'uploaded'
 >
 
 export type AssetKind = string
@@ -23,12 +23,12 @@ export type AssetTag = string
 export type AssetSize = `${number}x${number}`
 
 export function assetMetadataUpdate(asset: AssetMetadata): AssetMetadataUpdate {
-    const { width, height, uploaded, fileName, ...update } = asset
+    const { width, height, uploaded, src, ...update } = asset
     return update
 }
 
-export function assetFileName(asset: AssetMetadata) {
-    return asset.fileName
+export function assetSrc(asset: AssetMetadata) {
+    return asset.src
 }
 
 export function assetAlt(asset: AssetMetadata) {

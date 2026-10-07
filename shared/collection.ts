@@ -1,4 +1,4 @@
-import { AssetQuery, not, tag } from "./query"
+import { AssetQuery, tag } from "./query"
 
 export type Collection = {
     id: string,
@@ -29,7 +29,7 @@ const all: Collection = {
     id: 'all',
     title: 'Alikro, an artist.',
     description: 'All works by Alikro.',
-    query: not('unpublished'),
+    query: null,
 }
 
 const kindCollections: CollectionGroup = [{

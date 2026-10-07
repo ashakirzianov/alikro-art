@@ -218,7 +218,7 @@ function ExpandedViewImpl({
             {/* Cached thumbnail: visible immediately during the FLIP animation */}
             <img  // eslint-disable-line @next/next/no-img-element
                 ref={thumbnailRef}
-                src={imageSrc({ fileName: asset.fileName, width: 480 })}
+                src={imageSrc({ fileName: asset.src, width: 480 })}
                 alt=""
                 aria-hidden
                 style={sharedImgStyle}
@@ -226,7 +226,7 @@ function ExpandedViewImpl({
             {/* Full-res: loads in background, renders on top once ready */}
             <img  // eslint-disable-line @next/next/no-img-element
                 ref={fullResRef}
-                src={imageSrc({ fileName: asset.fileName, width: 1920 })}
+                src={imageSrc({ fileName: asset.src, width: 1920 })}
                 alt={assetAlt(asset)}
                 style={{
                     ...sharedImgStyle,
