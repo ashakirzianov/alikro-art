@@ -13,7 +13,7 @@ Measured 2026-10-07 from crow's live metadata (`GET /api/projects/alikro/metadat
 | Largest file | 10.4 MB (`Flower_5.png`) | 10.4 MB | 25 MiB per file |
 
 - `assets.json` is stale, so the import reads crow live.
-- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. Fixed in `xaxis/tiff-images` (done 2026-10-07): TIFF is detected as `image/tiff` and gets WebP variants. It reaches production when Anton pushes xaxis.
+- **2 TIFFs** (`broken-vessel`, `a-cup`, ceramics uploaded March 2026). Crow accepts `.tif`/`.tiff` and serves WebP variants of them. xaxis treats TIFF as a plain file, with no reason recorded; its `sharp` decodes TIFF. Fixed in `xaxis/tiff-images`, on production at `26508ab`: TIFF gets WebP variants.
 - **1 id breaks xaxis's name grammar**: `plate-with-the--dog` becomes `plate-with-the-dog`, with no redirect (ruled).
 - **1 GIF** (`gay-love-1`): fine, because xaxis keeps the animation in its variants.
 - 494 works are narrower than 1920 px. xaxis serves a wider request at the original width without enlarging, so the loader's widths stand.
@@ -27,7 +27,7 @@ Workspace **`alikro-art`**, owned by Anton for now (ruled; `alikro` is Alina's d
 | `id` | name `works/<id>` | |
 | `fileName` | the pointer's `file-name` | The site stops using it and builds URLs from `src`. |
 | `width`, `height` | the pointer's `width`, `height` | Read from the bytes. The import checks them against crow's values (EXIF rotation could swap them). |
-| `uploaded` (ms) | a time property, shape pending `xaxis/time-property` | Dates are day-precision, and every live work shares an upload day with another, so a `-date` would change the sort. `xaxis/time-property` (urgent, needs design) blocks the migration: a `-time` suffix, or `-date` widened to carry a time. |
+| `uploaded` (ms) | `uploaded-time` | Written with `(time "<ISO 8601 UTC>")`, keeping crow's milliseconds. A `-date` would be day-precision, and every live work shares an upload day with another, so the sort would change. Added by `xaxis/time-property` (production `26508ab`). The endpoint returns it as an ISO string, and the site converts it to ms at the boundary. |
 | `order` | `order-number` | 638 of 639 works have it; fractional values exist. |
 | `kind` | `kind` | Values stay, including `tattoo` and `hidden`. |
 | `title` | `xaxis-title` | All 639 have one. |
@@ -87,13 +87,13 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 **U6. Docs.** Update `CLAUDE.md` (architecture, env, related projects). Start `DECISIONS.md` with entries for:
 - xaxis as the content source
 - `public-flag` as the release state
-- the `uploaded` time property
+- `uploaded-time`
 - the OG WebP-to-JPEG conversion
 - the `www` webhook host
 
 ## 4. Cutover
 
-1. **Prerequisites:** `xaxis/time-property` closed; the `xaxis/tiff-images` fix pushed to production; `alikro-art` created by Anton.
+1. **Prerequisites:** Anton's go on this plan; `alikro-art` created by the account Anton picks.
 2. **Setup:**
    - An agent creates `keys/import`, `keys/site`, `api/works` and `hooks/site` in `alikro-art`.
    - Anton locks them in the browser and mints the secrets.
@@ -116,8 +116,8 @@ All site work happens **on a branch in its own worktree, never on `main`**, and 
 
 ## 5. Open
 
-1. **`public-flag`:** the name is Anton's. It is our own release state, separate from `xaxis-public-flag` (§1). Settled unless Anton prefers `published-flag` to keep it visibly apart from xaxis's flag.
+1. **Anton's go on this plan.**
+2. **Which of Anton's accounts creates `alikro-art`.** Both have 10 GB. Recommend `ashakirzianov@icloud.com`, the account agents connect as.
+3. **`public-flag`:** the name is Anton's and stands unless he prefers `published-flag`, to keep it visibly apart from xaxis's flag.
 
-Blocked on xaxis, owned by the xaxis lead and set as blockers of `alikro-art/migrate-to-xaxis-cms`:
-- `xaxis/time-property` (urgent): a designer is working with Anton.
-- `xaxis/tiff-images`: done; needs Anton's xaxis push to reach production.
+Both xaxis blockers (`xaxis/time-property`, `xaxis/tiff-images`) are closed and on production at `26508ab`.
