@@ -15,6 +15,8 @@ const CROW_ORIGINALS = 'https://ddj4fy891wvdw.cloudfront.net/alikro/originals'
 const BATCH = 50
 const PARALLEL = 4
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/
+// Byte-identical to `rose`, an accidental double upload; dropped rather than migrated (Anton, 2026-10-07)
+const EXCLUDED = new Set(['rose-2'])
 const PROPERTIES = [
     'xaxis-title', 'kind', 'year-number', 'material', 'order-number', 'tags-list',
     'uploaded-time', 'published-flag', 'xaxis-public-flag',
@@ -146,7 +148,8 @@ async function fetchCrowWorks() {
         headers: { Authorization: `Bearer ${process.env.CROW_CMS_SECRET_KEY}` },
     })
     if (!res.ok) throw new Error(`crow metadata: ${res.status}`)
-    return res.json()
+    const works = await res.json()
+    return works.filter(asset => !EXCLUDED.has(asset.id))
 }
 
 async function fetchXaxisWorks() {
