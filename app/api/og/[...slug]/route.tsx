@@ -92,9 +92,8 @@ function AssetLine({ assets, height, }: {
         return <img
           key={asset.id}
           src={imageSrc({
-            fileName: asset.src,
+            src: asset.src,
             width,
-            format: 'jpeg',
           })}
           alt={assetAlt(asset)}
           style={{

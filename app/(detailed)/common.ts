@@ -21,7 +21,7 @@ export async function generateMetadataForAssetId(assetId: string) {
     const description = asset ? assetDescription(asset) : 'My work'
     const images = [{
         url: imageSrc({
-            fileName: asset.src,
+            src: asset.src,
             width: 1200,
         }),
         alt: asset.title,
