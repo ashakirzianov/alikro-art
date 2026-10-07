@@ -23,6 +23,7 @@ const PROPERTIES = [
 ]
 
 const args = parseArgs(process.argv.slice(2))
+let requestId = 0
 await main()
 
 async function main() {
@@ -131,7 +132,9 @@ async function verify(assets) {
             problems.push(`${asset.id}: missing`)
             continue
         }
-        if (work.width !== asset.width || work.height !== asset.height) {
+        // crow's recorded size is sometimes scaled down from the original's; only a
+        // changed shape (a rotation, say) would change the site's layout
+        if (Math.abs(work.width / work.height - asset.width / asset.height) > 0.01) {
             problems.push(`${asset.id}: ${work.width}×${work.height} in xaxis, ${asset.width}×${asset.height} in crow`)
         }
         const desired = desiredProperties(asset)
@@ -174,7 +177,6 @@ async function mutate({ message, forms }) {
     return callTool('mutate', { json: ['commit', message, ...forms] })
 }
 
-let requestId = 0
 async function callTool(name, toolArgs) {
     const res = await fetch(XAXIS_MCP, {
         method: 'POST',
