@@ -105,12 +105,13 @@ async function uploadIfNeeded(plan) {
 function mutationForms(plan) {
     switch (plan.op) {
         case 'create':
-            return [['create!', plan.name, ['file', plan.sha256], propertiesForm(plan.properties, { skipNull: true })]]
+            return [['create!', plan.name, filePointer(plan), propertiesForm(plan.properties, { skipNull: true })]]
         case 'replace':
-            // A delete and a create of one name in one commit is a change: the object's life continues
+            // A content and a properties change of one name coalesce into one write,
+            // and properties set only in xaxis survive
             return [
-                ['delete!', plan.name],
-                ['create!', plan.name, ['file', plan.sha256], propertiesForm(plan.properties, { skipNull: true })],
+                ['set-content!', plan.name, filePointer(plan)],
+                ['update!', plan.name, propertiesForm(plan.properties, { skipNull: false })],
             ]
         case 'update':
             return [['update!', plan.name, propertiesForm(pick(plan.properties, plan.changed), { skipNull: false })]]
@@ -205,6 +206,12 @@ function desiredProperties(asset) {
         'published-flag': released ? true : null,
         'xaxis-public-flag': released ? true : null,
     }
+}
+
+// Named explicitly: `(file sha)` alone takes the name of the hash's first upload, so two
+// works with identical bytes would otherwise look replaced on every run
+function filePointer(plan) {
+    return ['file', plan.sha256, plan.asset.fileName]
 }
 
 function propertiesForm(properties, { skipNull }) {
