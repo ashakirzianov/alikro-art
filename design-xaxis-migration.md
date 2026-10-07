@@ -62,6 +62,13 @@ The import sets both on all 639 works, tattoos and the two `hidden` works includ
   - A property-by-property diff against crow comes out empty.
   - Every `src` answers 200 at `@w640.webp`.
 
+- **Done 2026-10-07:**
+  - The rehearsal (35 works) imported in 38 s, and its second run changed nothing.
+  - The full import added the other 603 works.
+  - The endpoint returns 638 works with no field differences against crow, and the 585 visible works sort identically.
+  - Cold OG render of `/all`: 3.7 s.
+  - `verify` flags 7 tattoos (`lizard`, `mouse`, `tiger`, `love-bird`, `venice-pier`, `clown`, `bird-3`). Crow records them as 1732×1299, but their originals and crow's own variants are 974×1299. xaxis is right, and the site hides tattoos anyway, so this is expected on every re-run.
+
 ## 3. Site changes
 
 All site work happens **on a branch in its own worktree, never on `main`**, and is seen on that branch's Vercel preview, which has the xaxis env vars. Each unit is one commit, with `npm run build` passing.
