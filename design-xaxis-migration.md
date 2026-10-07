@@ -124,9 +124,11 @@ Anton, 2026-10-07:
 - The release state is our own `published-flag`.
 - Tattoos are released and their image URLs are public.
 - `plate-with-the--dog` is renamed with no redirect.
+- `rose-2`, a byte-identical duplicate of `rose`, is not migrated, so the parallel-run diff shows it as the one expected difference.
 - `img.alikro.art` stays up one month after cutover.
 - Site work happens on a branch in its own worktree.
 - Anton works out the editing UX with Alina directly.
+- `alikro-art` exists (rev 1 holds `api/works`, `keys/import`, `keys/site` and `hooks/site`).
 
 xaxis gaps closed for this migration, on production at `26508ab`:
 - `xaxis/time-property`, which gives `uploaded-time`
