@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`alikro` is a Next.js art portfolio site for the artist "alikro". It reads asset metadata and images from the separate `crow-cms` project via its HTTP API (see `shared/cms.ts`). The CMS base URL is configured via `NEXT_PUBLIC_CROW_CMS` and an auth secret via `CROW_CMS_SECRET_KEY`.
+`alikro` is a Next.js art portfolio site for the artist "alikro". It reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (see `shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from `crow-cms`; see `design-xaxis-migration.md`.
 
 The project is small, so the workflow here is lighter than in the more structured repos: dedicated `docs/` and `tasks/` folders aren't required, but they (or ad-hoc top-level `.md` files) are fine when they actually help.
 
@@ -12,6 +12,7 @@ The project is small, so the workflow here is lighter than in the more structure
 
 ### Documentation Organization
 - `CLAUDE.md` — conventions and guidance for Claude Code (this file).
+- `DECISIONS.md` — decisions in force, grouped by area: what the code cannot say about itself.
 - **Tasks, issues and ideas live in the tracker, not in this repo.** How to use it — the tools, the vocabularies, and what belongs in a repo instead — is fleet-wide guidance every agent already carries; this repo adds nothing to it.
 - `TRACK.md` — which track this repo belongs to, and its slug. The slug is the tracker's project name and is declared there and nowhere else.
 - `SCRATCHPAD.md` — untracked scratch space for drafting prompts and half-formed ideas. Do not act on its contents unless explicitly asked.
@@ -76,20 +77,28 @@ The project is small, so the workflow here is lighter than in the more structure
 ## Architecture Overview
 
 - **Framework**: Next.js 16 App Router, React 19, Tailwind v4.
-- **Content source**: All asset metadata comes from `crow-cms` via `shared/cms.ts`. Images are served by the CMS (S3-backed) and rendered through `app/AssetImage.tsx`.
-- **Storage helpers**: `@upstash/redis` and `@aws-sdk/client-s3` are present for any direct access that bypasses the CMS when needed.
+- **Content source**: All asset metadata comes from xaxis's `api/works` via `shared/cms.ts`, which converts at the boundary (`null` to `undefined`, the ISO upload time to ms) and drops works without an image. The endpoint returns released works only; tattoos are released but hidden by kind in `shared/preprocess.ts`. `shared/metadataStore.ts` caches the read under the `cms-content` tag.
+- **Images**: each work's `src` is its full-size WebP on `files.xaxis.app` (`…@.webp`); `shared/image.ts` turns it into a sized variant (`…@w<width>.webp`), and `app/AssetImage.tsx` renders it with snapped widths.
+- **Storage helpers**: `@upstash/redis` and `@aws-sdk/client-s3` are unused and retire after cutover.
 - **Route groups**:
   - `app/(detailed)/` — the main gallery experience with filtering, navigation, and an expanded work modal.
   - `app/(slideshow)/` — slideshow/grid presentation.
-  - `app/api/` — `og` (OpenGraph image generation) and `revalidate` (cache revalidation hook called by the CMS when content changes).
+  - `app/api/` — `og` (OpenGraph image generation, converting xaxis's WebP to JPEG with `sharp` because Satori can't decode WebP), `revalidate` (xaxis's signed webhook, which revalidates `cms-content`) and `revalidate/[tag]` (crow's hook, until crow retires).
 - **Shared logic**: `shared/` holds the CMS client, asset/tag/collection types, metadata helpers, query parsing, and small utilities. Frontend code should read from `shared/` rather than reimplementing fetches.
 
 ## Environment
 
-Required env vars (see `shared/cms.ts`):
-- `NEXT_PUBLIC_CROW_CMS` — base URL of the `crow-cms` instance.
-- `CROW_CMS_SECRET_KEY` — bearer token for authenticated CMS requests.
+Required env vars:
+- `XAXIS_WORKS_URL` — the works endpoint (`shared/cms.ts`); `https://www.xaxis.app/ws/alikro-art/api/works` in production. Use `www`: the apex redirects there, and `fetch` drops `Authorization` on a cross-origin redirect.
+- `XAXIS_SITE_KEY` — bearer secret for that endpoint, minted on `keys/site` in `alikro-art`.
+- `XAXIS_WEBHOOK_SECRET` — the secret of the `hooks/site` webhook, which signs its POSTs to `/api/revalidate`.
+- `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`); `https://www.xaxis.app`.
+
+The build prerenders pages from the works endpoint, and `shared/cms.ts` throws when `XAXIS_WORKS_URL` or `XAXIS_SITE_KEY` is unset or the fetch fails, so `npm run build` fails without them, locally too: set both in `.env.local`. This is deliberate: a failed build keeps the previous deployment live, where an empty answer would prerender and cache an empty site.
+
+Retiring after cutover: `NEXT_PUBLIC_CROW_CMS` and `CROW_CMS_SECRET_KEY` (used only by `/api/revalidate/[tag]` now), and `NEXT_PUBLIC_IMG_BASE` (unused).
 
 ## Related projects
 
-- `../crow-cms` — the CMS backend that serves this site's content. All asset metadata and images flow from there through `shared/cms.ts`. The CMS also calls this repo's `/api/revalidate/[tag]` endpoint when content changes, so when touching that endpoint or the CMS client, check `../crow-cms/CLAUDE.md` and coordinate.
+- `../xaxis` — the CMS. The site reads `api/works` in the `alikro-art` workspace, edit links open its objects, and its `hooks/site` webhook posts to `/api/revalidate` after every commit. When touching the read path, the image URL grammar, the webhook route or the edit links, check `../xaxis` and the objects in `alikro-art`.
+- `../crow-cms` — the previous CMS, retiring after about two weeks of stable running on xaxis. Until then its hook still calls `/api/revalidate/[tag]`, so coordinate with `../crow-cms/CLAUDE.md` before touching that route.

@@ -12,7 +12,7 @@ interface AssetImageProps {
 }
 
 const snapWidths = [320, 480, 640, 768, 960, 1200, 1600, 1920]
-function loader({ src, width, quality }: { src: string, width: number, quality?: number }) {
+function loader({ src, width }: { src: string, width: number }) {
     let closestWidth = snapWidths[0]
     for (const snapWidth of snapWidths) {
         closestWidth = snapWidth
@@ -21,9 +21,8 @@ function loader({ src, width, quality }: { src: string, width: number, quality?:
         }
     }
     return imageSrc({
-        fileName: src,
+        src,
         width: closestWidth,
-        quality,
     })
 }
 
@@ -32,7 +31,7 @@ export function AssetImage({ asset, sizes, style, loading, priority }: AssetImag
     const height = assetHeight(asset)
     return (
         <Image
-            src={asset.fileName}
+            src={asset.src}
             loader={loader}
             alt={assetAlt(asset)}
             width={width}

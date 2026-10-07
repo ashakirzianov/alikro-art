@@ -14,7 +14,7 @@ export function allSlides(): Slide[] {
 const slides: Slide[] = [{
     title: 'Alikro, an artist.',
     href: '/all',
-    query: and(not('unpublished'), tag('Self-portrait')),
+    query: tag('Self-portrait'),
     includeLinks: true,
 }, {
     title: 'Paintings.',

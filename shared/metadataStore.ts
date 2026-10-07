@@ -47,7 +47,7 @@ export async function getUniqueMaterials() {
 }
 
 export async function getUniqueTags() {
-    const assets = await getPublishedAssetsMetadata()
+    const assets = await getAllAssetsMetadata()
     const tagSet = new Set<string>()
     assets.forEach(asset => {
         asset.tags?.forEach(tag => tagSet.add(tag))
@@ -56,12 +56,12 @@ export async function getUniqueTags() {
 }
 
 export async function getAssetMetadata(id: string) {
-    const assets = await getPublishedAssetsMetadata()
+    const assets = await getAllAssetsMetadata()
     return assets.find(asset => asset.id === id)
 }
 
 async function getUniquePropertyValues<P extends keyof AssetMetadata>(property: P): Promise<AssetMetadata[P][]> {
-    const assets = await getPublishedAssetsMetadata()
+    const assets = await getAllAssetsMetadata()
     const values = assets
         .map(asset => asset[property])
         .filter((value): value is NonNullable<AssetMetadata[P]> => value !== undefined)
@@ -69,20 +69,15 @@ async function getUniquePropertyValues<P extends keyof AssetMetadata>(property: 
 }
 
 async function getSortedAssetsForQuery(query: AssetQuery) {
-    const unsorted = await getPublishedAssetsMetadata()
+    const unsorted = await getAllAssetsMetadata()
     const assets = sortAssets(unsorted)
     return assetsForQuery(assets, query)
-}
-
-async function getPublishedAssetsMetadata() {
-    const allAssets = await getAllAssetsMetadata()
-    return allAssets.filter(asset => asset.kind !== 'unpublished')
 }
 
 async function getAllAssetsMetadata() {
     'use cache'
     cacheLife('max')
-    cacheTag('crow-content')
+    cacheTag('cms-content')
     const assets = await fetchAllAssetMetadata()
     return preproccessAssets(assets)
 }

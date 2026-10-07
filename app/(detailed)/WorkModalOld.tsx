@@ -4,7 +4,7 @@ import { Modal } from "@/app/(detailed)/Modal"
 import { AssetImage } from "@/app/AssetImage"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { Suspense, useCallback, useEffect } from "react"
-import { hrefForConsole, hrefForAssetModal, hrefForAsset, filterForPathname } from "@/shared/href"
+import { hrefForConsole, hrefForAssetModal, hrefForAsset } from "@/shared/href"
 import Link from "next/link"
 import { useIsClient, useShowEditButton } from "@/shared/setting"
 
@@ -69,10 +69,7 @@ function WorkModalImpl({
         })
         : undefined
     const dismissLink = pathname
-    const editLink = hrefForConsole({
-        filter: filterForPathname(pathname),
-        assetId: asset.id,
-    })
+    const editLink = hrefForConsole({ assetId: asset.id })
 
     const currentAssetLink = hrefForAsset({
         assetId: asset.id,

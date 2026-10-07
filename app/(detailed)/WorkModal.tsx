@@ -4,7 +4,7 @@ import { Modal } from "@/app/(detailed)/Modal"
 import { AssetImage } from "@/app/AssetImage"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { Suspense, useCallback, useEffect, useState } from "react"
-import { hrefForConsole, hrefForAssetModal, hrefForAsset, hrefForTag, filterForPathname } from "@/shared/href"
+import { hrefForConsole, hrefForAssetModal, hrefForAsset, hrefForTag } from "@/shared/href"
 import Link from "next/link"
 import { useIsClient, useShowEditButton } from "@/shared/setting"
 import { Carousel, scrollCarouselNext, scrollCarouselPrev } from "./Carousel"
@@ -63,7 +63,7 @@ function WorkModalImpl({
     const prevLink = hrefForAssetModal({ pathname, assetId: assets[prevIdx].id })
     const dismissLink = pathname
     const asset = assets[assetIdx]
-    const editLink = hrefForConsole({ filter: filterForPathname(pathname), assetId: asset.id })
+    const editLink = hrefForConsole({ assetId: asset.id })
 
     const handleIndexChange = useCallback((newIdx: number) => {
         setShowTags(false)

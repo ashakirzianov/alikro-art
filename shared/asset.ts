@@ -1,9 +1,9 @@
 export type Timestamp = number
 export type AssetMetadata = {
     id: string,
-    fileName: string,
-    width: number,
-    height: number,
+    src: string,
+    width?: number,
+    height?: number,
     uploaded: Timestamp,
     order?: number,
     kind?: string,
@@ -14,7 +14,7 @@ export type AssetMetadata = {
 }
 export type AssetMetadataUpdate = Omit<
     AssetMetadata,
-    'fileName' | 'width' | 'height' | 'uploaded'
+    'src' | 'width' | 'height' | 'uploaded'
 >
 
 export type AssetKind = string
@@ -23,12 +23,12 @@ export type AssetTag = string
 export type AssetSize = `${number}x${number}`
 
 export function assetMetadataUpdate(asset: AssetMetadata): AssetMetadataUpdate {
-    const { width, height, uploaded, fileName, ...update } = asset
+    const { width, height, uploaded, src, ...update } = asset
     return update
 }
 
-export function assetFileName(asset: AssetMetadata) {
-    return asset.fileName
+export function assetSrc(asset: AssetMetadata) {
+    return asset.src
 }
 
 export function assetAlt(asset: AssetMetadata) {
@@ -49,8 +49,13 @@ export function assetDescription(asset: AssetMetadata) {
 
 export function sortAssets(assets: AssetMetadata[]) {
     return [...assets].sort((a, b) => {
-        if (a.order !== b.order) {
-            return (a.order ?? 0) - (b.order ?? 0)
+        // Compare the defaulted orders: comparing the raw ones made a missing order tie
+        // with 0 without the upload-time tie-break, an inconsistent comparator whose
+        // result depended on the order the CMS returned works in
+        const aOrder = a.order ?? 0
+        const bOrder = b.order ?? 0
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder
         } else if (a.uploaded !== b.uploaded) {
             return b.uploaded - a.uploaded
         } else {
