@@ -1,5 +1,5 @@
 // One-off import of crow-cms's works into the xaxis workspace `alikro-art`
-// (design-xaxis-migration.md, §2). Re-runnable: a second run changes nothing,
+// (docs/xaxis-migration.md, §2). Re-runnable: a second run changes nothing,
 // and a later run syncs whatever changed in crow since.
 //
 //   node --env-file=.env.local scripts/import-to-xaxis.mjs [--dry-run] [--only id,id] [--apply-deletes]

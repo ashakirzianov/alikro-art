@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`alikro` is a Next.js art portfolio site for the artist "alikro". It reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (see `shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from `crow-cms`; see `design-xaxis-migration.md`.
+`alikro` is a Next.js art portfolio site for the artist "alikro". It reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (see `shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from `crow-cms`; see `docs/xaxis-migration.md`.
 
 The project is small, so the workflow here is lighter than in the more structured repos: dedicated `docs/` and `tasks/` folders aren't required, but they (or ad-hoc top-level `.md` files) are fine when they actually help.
 
