@@ -1,5 +1,7 @@
 # Moving alikro.art from crow-cms to xaxis
 
+**Status:** switched 2026-10-07 (`338ff71`); open until crow retires (`alikro-art/retire-crow-after-cutover`).
+
 Plan for `alikro-art/migrate-to-xaxis-cms`. Drafted 2026-10-07 and approved by Anton the same day. xaxis side: production at `46b7c5e`, gap list in `xaxis/alikro-art-cms`.
 
 ## 0. The corpus
