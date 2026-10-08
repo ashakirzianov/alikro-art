@@ -41,3 +41,4 @@ certificates
 # Claude Code local state — track/ is tracked, the rest is not
 .claude/settings.local.json
 .claude/worktrees/
+.env*
