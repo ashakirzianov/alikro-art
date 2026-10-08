@@ -14,12 +14,6 @@
 
 **A work's upload time is `uploaded-time`, a time with milliseconds.** 2026-10-07. Works sort by `order`, then newest upload first, and every live work shares an upload day with another, so a day-precision date would reorder them. `api/works` returns it as an ISO 8601 string, and `shared/cms.ts` converts it to ms. *Rejected:* `uploaded-date`; an ms `uploaded-number`. *See:* design-xaxis-migration.md.
 
-## Images
-
-### og-image-format
-
-**The OG route fetches xaxis's WebP variants, converts them to JPEG with `sharp` and inlines them as data URIs.** 2026-10-07. Satori, which renders `next/og` images, cannot decode WebP, and xaxis serves WebP only. *See:* design-xaxis-migration.md.
-
 ## Revalidation
 
 ### webhook-host
