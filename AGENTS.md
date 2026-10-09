@@ -1,10 +1,13 @@
+---
+track: alikro-art
+---
+
 # alikro-art
 
 Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; see `docs/xaxis-migration.md`.
 
 ## Documentation layout
 
-- `TRACK.md` — which track this repo belongs to, and its slug.
 - `DECISIONS.md` — the decision log: decisions in force, with their reasons. Read it before changing the content model, the webhook or the read path.
 - `docs/` — designs and records. `docs/xaxis-migration.md` is the migration effort, open until crow retires.
 - `SCRATCHPAD.md` — when present, Anton's untracked drafting space; never open it without an explicit ask.
