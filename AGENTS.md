@@ -5,12 +5,12 @@ workspace: aplusaequals
 
 # alikro-art
 
-Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; see `docs/xaxis-migration.md`.
+Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; the migration is `alikro-art/xaxis-migration` in xaxis.
 
 ## Documentation layout
 
-- `DECISIONS.md` — the decision log: decisions in force, with their reasons. Read it before changing the content model, the webhook or the read path.
-- `docs/` — designs and records. `docs/xaxis-migration.md` is the migration effort, open until crow retires.
+- The track's context lives in xaxis, in the `aplusaequals` workspace: `alikro-art/about` (`get-project`), the decision log `alikro-art/decisions`, and `alikro-art/xaxis-migration`, the migration effort, open until crow retires. Read the decision log before changing the content model, the webhook or the read path; this file cites its entries by slug, as in (`release-state`).
+- `docs/` — when present, notes about working on this checkout.
 - `SCRATCHPAD.md` — when present, Anton's untracked drafting space; never open it without an explicit ask.
 - `archive/` — when present, finished efforts moved out of `docs/`.
 
@@ -31,7 +31,7 @@ Run `npm run build` after a change and fix any errors before presenting the work
 ## Map
 
 - **Stack**: Next.js 16 App Router, React 19, Tailwind v4.
-- **Content**: `shared/cms.ts` reads xaxis's `api/works` (released works only), `shared/preprocess.ts` hides tattoos, and `shared/metadataStore.ts` caches the read under the `cms-content` tag.
+- **Content**: `shared/cms.ts` reads xaxis's `api/works` (released works only) and converts `uploaded-time` to ms, keeping the milliseconds the sort needs (`upload-time`); `shared/preprocess.ts` hides tattoos by kind, since they are released (`release-state`); and `shared/metadataStore.ts` caches the read under the `cms-content` tag.
 - **Images**: `shared/image.ts` builds the sized WebP variant URLs on `files.xaxis.app`, and `app/AssetImage.tsx` renders them.
 - **Routes**:
   - `app/(detailed)/` — the main gallery: filtering, navigation, and an expanded work modal.
@@ -44,7 +44,7 @@ Run `npm run build` after a change and fix any errors before presenting the work
 
 - `XAXIS_WORKS_URL` — the works endpoint (`shared/cms.ts`): `https://www.xaxis.app/ws/alikro-art/api/works` in production. Use `www`: the apex redirects there, and `fetch` drops `Authorization` on a cross-origin redirect.
 - `XAXIS_SITE_KEY` — the bearer secret for that endpoint, minted on `keys/site` in `alikro-art`.
-- `XAXIS_WEBHOOK_SECRET` — the secret of the `hooks/site` webhook, which signs its POSTs to `/api/revalidate`.
+- `XAXIS_WEBHOOK_SECRET` — the secret of the `hooks/site` webhook, which signs its POSTs to `https://www.alikro.art/api/revalidate`: the `www` host, since webhooks don't follow the apex's redirect (`webhook-host`).
 - `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`, `app/(detailed)/console/page.tsx`): `https://www.xaxis.app`.
 
 ## Coding preferences
