@@ -18,7 +18,7 @@ Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its 
 
 **High-level.** Anton reviews design and interfaces — the content model, the read path, the webhook, the public URLs — not implementation. Agents commit on their own, one logical unit each, staging only the files they touched, and surface the design deltas they introduce rather than landing them silently. (Set by Anton 2026-10-08, replacing *owned*.)
 
-**Pushing is Anton's call: a push to `main` deploys alikro.art.** Do not push unless explicitly asked.
+**Agents push; the deploy is the promote.** A push to `main` builds a staged production deployment that serves nothing until promoted (`production-deploy`). Deploying is promoting it, with the dashboard's Promote or `vercel promote <url>`: Anton's call, or an agent's when he asks. Rollback is the same move. A promoted build serves the works it prerendered at build time until the next `hooks/site` revalidation, so after a promote, send that webhook if the works changed since the build. A change that carries a migration or schema change, if the repo ever has one, stays Anton's to push.
 
 ## Build and commands
 
