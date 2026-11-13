@@ -1,32 +1,29 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { timingSafeEqual } from "node:crypto"
 import { revalidateTag } from "next/cache"
 
-// xaxis's webhook `hooks/site` posts here after every commit to the workspace, and on "send now"
+// xaxis's hook `alikro-art-site` posts `{ commit, paths }` here after a landing under `/alikro-art/`
 export async function POST(request: Request) {
-  const secret = process.env.XAXIS_WEBHOOK_SECRET
-  // The signature covers the exact bytes sent, so read the raw text rather than parsed JSON
-  const body = await request.text()
-  const signature = request.headers.get("x-xaxis-signature")
-  if (!secret || !isSignatureValid({ body, signature, secret })) {
-    console.warn("Rejected revalidation: missing secret, or missing or bad X-Xaxis-Signature")
+  const token = process.env.XAXIS_WEBHOOK_SECRET
+  if (!token || !isBearerValid({ authorization: request.headers.get("authorization"), token })) {
+    console.warn("Rejected revalidation: missing token, or missing or bad Authorization")
     return new Response("Unauthorized", { status: 401 })
   }
+  // The body only names the landing in the log: any authorized post revalidates
+  const body: { commit?: string, paths?: string[] } | undefined = await request.json().catch(() => undefined)
   revalidateTag("cms-content", "max")
-  console.info("Revalidated tag: cms-content")
+  console.info(`Revalidated tag: cms-content (commit ${body?.commit ?? "unknown"}, ${body?.paths?.length ?? 0} paths)`)
   return new Response("Revalidated tag: cms-content", { status: 200 })
 }
 
-// xaxis signs with `sha256=<hex HMAC-SHA256 of the body>`
-function isSignatureValid({ body, signature, secret }: {
-  body: string,
-  signature: string | null,
-  secret: string,
+function isBearerValid({ authorization, token }: {
+  authorization: string | null,
+  token: string,
 }) {
-  if (signature === null) {
+  if (authorization === null) {
     return false
   }
-  const expected = Buffer.from(`sha256=${createHmac("sha256", secret).update(body).digest("hex")}`)
-  const actual = Buffer.from(signature)
+  const expected = Buffer.from(`Bearer ${token}`)
+  const actual = Buffer.from(authorization)
   // timingSafeEqual throws on a length mismatch, and a length leaks nothing secret
   return actual.length === expected.length && timingSafeEqual(actual, expected)
 }

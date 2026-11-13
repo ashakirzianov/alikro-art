@@ -1,4 +1,4 @@
-// xaxis serves a work's full-size image at `…@.webp` and a resized variant at `…@w<width>.webp`
+// xaxis serves a work's full-size image at `…@.webp` and a variant at `…@w<width>.webp`, never wider than the image
 export function imageSrc({ src, width }: {
     src: string,
     width: number,
