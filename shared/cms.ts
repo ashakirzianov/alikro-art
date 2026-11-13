@@ -15,10 +15,15 @@ export async function fetchAllAssetMetadata(): Promise<AssetMetadata[]> {
         throw new Error(`Fetching works failed: ${res.status} ${res.statusText}`)
     }
     const works: Work[] = await res.json()
-    return works.flatMap(work => {
+    const assets = works.flatMap(work => {
         const asset = assetFromWork(work)
         return asset ? [asset] : []
     })
+    // A 200 whose works all lack `src` (or with no works at all) would be an empty site too
+    if (assets.length === 0) {
+        throw new Error(`Fetching works answered ${works.length} works, none with an image`)
+    }
+    return assets
 }
 
 // The shape `api/works` answers with: absent values are `null`
