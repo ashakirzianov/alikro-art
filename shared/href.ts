@@ -51,12 +51,12 @@ export function hrefForMaterial({ material }: {
     return `/material/${encodeURIComponent(material ?? 'unspecified')}`
 }
 
-// The work's object in xaxis, or the works folder without one
+// The work's page in xaxis, or the works folder without one
 export function hrefForConsole({ assetId }: {
     assetId?: string,
 } = {}): string {
     const base = process.env.NEXT_PUBLIC_XAXIS_URL
     return assetId
-        ? `${base}/o/alikro-art:works/${assetId}`
-        : `${base}/ws/alikro-art/p/works`
+        ? `${base}/b/alikro-art/works/${assetId}.md?open`
+        : `${base}/b/alikro-art/works`
 }
