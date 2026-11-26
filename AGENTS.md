@@ -1,15 +1,15 @@
 ---
 track: alikro-art
-workspace: aplusaequals
+codebase-url: https://github.com/ashakirzianov/alikro-art
 ---
 
 # alikro-art
 
-Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `alikro-art` workspace in xaxis, through that workspace's `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; the migration is `alikro-art/xaxis-migration` in xaxis.
+Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `/alikro-art/` folder in xaxis, through its `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; the migration is `/aplusaequals/alikro-art/xaxis-migration.md` in xaxis.
 
 ## Documentation layout
 
-- The track's context lives in xaxis, in the `aplusaequals` workspace: `alikro-art/about` (`get-project`), the decision log `alikro-art/decisions`, and `alikro-art/xaxis-migration`, the migration effort, open until crow retires. Read the decision log before changing the content model, the webhook or the read path; this file cites its entries by slug, as in (`release-state`).
+- The track's context lives in xaxis, under `/aplusaequals/alikro-art/`: `about.md` (`get-project`), the decision log `decisions/`, and `xaxis-migration.md`, the migration effort, open until crow retires. Read the decision log before changing the content model, the webhook or the read path; this file cites its entries by slug, as in (`release-state`).
 - `docs/` — when present, notes about working on this checkout.
 - `SCRATCHPAD.md` — when present, Anton's untracked drafting space; never open it without an explicit ask.
 - `archive/` — when present, finished efforts moved out of `docs/`.
@@ -26,7 +26,7 @@ Run `npm run build` after a change and fix any errors before presenting the work
 
 - `npm run dev` — development server.
 - `npm run build`, `npm run start` — production build and server.
-- `npm run lint` — broken since Next 16 removed `next lint`: `alikro-art/lint-script-broken`.
+- `npm run lint` — broken since Next 16 removed `next lint`: `/aplusaequals/alikro-art/tasks/lint-script-broken.task`.
 
 ## Map
 
@@ -38,7 +38,7 @@ Run `npm run build` after a change and fix any errors before presenting the work
   - `app/(slideshow)/` — slideshow and grid presentation.
   - `app/api/` — `og` (OpenGraph images), `revalidate` (xaxis's hook, checked by its bearer token, which revalidates `cms-content`) and `revalidate/[tag]` (crow's hook, until crow retires).
 - **Shared logic**: `shared/` holds the CMS client, the asset (work), tag and collection types, metadata helpers, query parsing and small utilities. Frontend code reads from `shared/` rather than reimplementing fetches.
-- **Crow leftovers and dead code** retire with crow, listed in `alikro-art/retire-crow-after-cutover`: the `[tag]` revalidate route, the crow env vars, the import script and `assets.json`, the S3 and Redis dependencies, `WorkModalOld.tsx` and `app/(detailed)/common.ts`. Don't build on them.
+- **Crow leftovers and dead code** retire with crow, listed in `/aplusaequals/alikro-art/tasks/retire-crow-after-cutover.task`: the `[tag]` revalidate route, the crow env vars, the import script and `assets.json`, the S3 and Redis dependencies, `WorkModalOld.tsx` and `app/(detailed)/common.ts`. Don't build on them.
 
 ## Environment
 
@@ -62,5 +62,5 @@ Tailwind v4 with PostCSS. Use only the colors defined in `app/globals.css` (e.g.
 
 ## Related projects
 
-- `../xaxis` — the CMS. The site reads `api/works` in the `alikro-art` workspace, edit links open its files' pages (`/b/alikro-art/works/…`), and its hook `alikro-art-site` posts to `/api/revalidate` after a landing under `/alikro-art/`. When touching the read path, the image URL grammar, the webhook route or the edit links, check `../xaxis` and the objects in `alikro-art`.
+- `../xaxis` — the CMS. The site reads `api/works` under `/alikro-art/`, edit links open its files' pages (`/b/alikro-art/works/…`), and its hook `alikro-art-site` posts to `/api/revalidate` after a landing under `/alikro-art/`. When touching the read path, the image URL grammar, the webhook route or the edit links, check `../xaxis` and the files under `/alikro-art/`.
 - `../crow-cms` — the previous CMS, retiring from about 2026-10-21. Until then its hook still calls `/api/revalidate/[tag]`, so coordinate with `../crow-cms` before touching that route.
