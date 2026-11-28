@@ -5,11 +5,11 @@ codebase-url: https://github.com/ashakirzianov/alikro-art
 
 # alikro-art
 
-Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `/alikro-art/` folder in xaxis, through its `api/works` endpoint (`shared/cms.ts`), and shows their images from xaxis's CDN. It moved there from crow-cms; the migration is `/aplusaequals/alikro-art/xaxis-migration.md` in xaxis.
+Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its works from the `/alikro-art/` folder in monore, through its `api/works` endpoint (`shared/cms.ts`), and shows their images from monore's CDN. It moved there from crow-cms; the migration is `/aplusaequals/alikro-art/xaxis-migration.md` in monore.
 
 ## Documentation layout
 
-- The track's context lives in xaxis, under `/aplusaequals/alikro-art/`: `about.md` (`get-project`), the decision log `decisions/`, and `xaxis-migration.md`, the migration effort, open until crow retires. Read the decision log before changing the content model, the webhook or the read path; this file cites its entries by slug, as in (`release-state`).
+- The track's context lives in monore, under `/aplusaequals/alikro-art/`: `about.md` (`get-project`), the decision log `decisions/`, and `xaxis-migration.md`, the migration effort, open until crow retires. Read the decision log before changing the content model, the webhook or the read path; this file cites its entries by slug, as in (`release-state`).
 - `docs/` — when present, notes about working on this checkout.
 - `SCRATCHPAD.md` — when present, Anton's untracked drafting space; never open it without an explicit ask.
 - `archive/` — when present, finished efforts moved out of `docs/`.
@@ -18,7 +18,7 @@ Alina's ("alikro") art portfolio site, alikro.art: a Next.js app that reads its 
 
 **High-level.** Anton reviews design and interfaces — the content model, the read path, the webhook, the public URLs — not implementation. Agents commit on their own, one logical unit each, staging only the files they touched, and surface the design deltas they introduce rather than landing them silently. (Set by Anton 2026-10-08, replacing *owned*.)
 
-**Agents push; the deploy is the promote.** A push to `main` builds a staged production deployment that serves nothing until promoted (`production-deploy`). Deploying is promoting it, with the dashboard's Promote or `vercel promote <url>`: Anton's call, or an agent's when he asks. Rollback is the same move. A promoted build serves the works it prerendered at build time until the next revalidation, so after a promote, revalidate if the works changed since the build: land a commit under `/alikro-art/`, which fires xaxis's hook, or POST to `/api/revalidate` with the hook's token. A change that carries a migration or schema change, if the repo ever has one, stays Anton's to push.
+**Agents push; the deploy is the promote.** A push to `main` builds a staged production deployment that serves nothing until promoted (`production-deploy`). Deploying is promoting it, with the dashboard's Promote or `vercel promote <url>`: Anton's call, or an agent's when he asks. Rollback is the same move. A promoted build serves the works it prerendered at build time until the next revalidation, so after a promote, revalidate if the works changed since the build: land a commit under `/alikro-art/`, which fires monore's hook, or POST to `/api/revalidate` with the hook's token. A change that carries a migration or schema change, if the repo ever has one, stays Anton's to push.
 
 ## Build and commands
 
@@ -31,12 +31,12 @@ Run `npm run build` after a change and fix any errors before presenting the work
 ## Map
 
 - **Stack**: Next.js 16 App Router, React 19, Tailwind v4.
-- **Content**: `shared/cms.ts` reads xaxis's `api/works` (released works only) and converts `uploaded-time` to ms, keeping the milliseconds the sort needs (`upload-time`); `shared/preprocess.ts` hides tattoos by kind, since they are released (`release-state`); and `shared/metadataStore.ts` caches the read under the `cms-content` tag.
-- **Images**: the endpoint answers each work's `src` from `imgUrl`, a full-size WebP on `img.xaxis.app`, served by the image bundle `works/.xaxis/img.xabundle`; `shared/image.ts` builds the sized variant URLs from it, and `app/AssetImage.tsx` renders them. A work whose image xaxis makes no variants of (no detected size, or past 50 megapixels) answers no `src`, and the site drops it.
+- **Content**: `shared/cms.ts` reads monore's `api/works` (released works only) and converts `uploaded-time` to ms, keeping the milliseconds the sort needs (`upload-time`); `shared/preprocess.ts` hides tattoos by kind, since they are released (`release-state`); and `shared/metadataStore.ts` caches the read under the `cms-content` tag.
+- **Images**: the endpoint answers each work's `src` from `imgUrl`, a full-size WebP on `img.xaxis.app`, served by the image bundle `works/.monore/img.xabundle`; `shared/image.ts` builds the sized variant URLs from it, and `app/AssetImage.tsx` renders them. A work whose image monore makes no variants of (no detected size, or past 50 megapixels) answers no `src`, and the site drops it.
 - **Routes**:
   - `app/(detailed)/` — the main gallery: filtering, navigation, and an expanded work modal.
   - `app/(slideshow)/` — slideshow and grid presentation.
-  - `app/api/` — `og` (OpenGraph images), `revalidate` (xaxis's hook, checked by its bearer token, which revalidates `cms-content`) and `revalidate/[tag]` (crow's hook, until crow retires).
+  - `app/api/` — `og` (OpenGraph images), `revalidate` (monore's hook, checked by its bearer token, which revalidates `cms-content`) and `revalidate/[tag]` (crow's hook, until crow retires).
 - **Shared logic**: `shared/` holds the CMS client, the asset (work), tag and collection types, metadata helpers, query parsing and small utilities. Frontend code reads from `shared/` rather than reimplementing fetches.
 - **Crow leftovers and dead code** retire with crow, listed in `/aplusaequals/alikro-art/tasks/retire-crow-after-cutover.task`: the `[tag]` revalidate route, the crow env vars, the import script and `assets.json`, the S3 and Redis dependencies, `WorkModalOld.tsx` and `app/(detailed)/common.ts`. Don't build on them.
 
@@ -44,8 +44,8 @@ Run `npm run build` after a change and fix any errors before presenting the work
 
 - `XAXIS_WORKS_URL` — the works endpoint (`shared/cms.ts`): `https://xaxis.app/api/alikro-art/works` in production. Use the apex: it is xaxis's canonical host, and `fetch` drops `Authorization` on a cross-origin redirect.
 - `XAXIS_SITE_KEY` — the bearer secret for that endpoint: a credential of the principal `/alikro-art/keys/site.xabundle`.
-- `XAXIS_WEBHOOK_SECRET` — the token xaxis's hook `alikro-art-site` sends as `Authorization: Bearer …` with its POSTs of `{ commit, paths }` to `https://www.alikro.art/api/revalidate`: the `www` host, since the hook doesn't follow the apex's redirect (`webhook-host`).
-- `NEXT_PUBLIC_XAXIS_URL` — xaxis's base URL for edit links (`shared/href.ts`, `app/(detailed)/console/page.tsx`): `https://xaxis.app`.
+- `XAXIS_WEBHOOK_SECRET` — the token monore's hook `alikro-art-site` sends as `Authorization: Bearer …` with its POSTs of `{ commit, paths }` to `https://www.alikro.art/api/revalidate`: the `www` host, since the hook doesn't follow the apex's redirect (`webhook-host`).
+- `NEXT_PUBLIC_XAXIS_URL` — monore's base URL for edit links (`shared/href.ts`, `app/(detailed)/console/page.tsx`): `https://xaxis.app`.
 
 ## Coding preferences
 
